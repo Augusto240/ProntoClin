@@ -29,17 +29,19 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .cors(cors -> cors.configurationSource(request -> new org.springframework.web.cors.CorsConfiguration().applyPermitDefaultValues()))
-                .authorizeHttpRequests( authorize -> authorize
+                .authorizeHttpRequests(auth -> auth
+                        // Garantir que as rotas de registro sejam permitidas antes de qualquer outra regra
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register/paciente").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register/prosaude").permitAll()
+    
+                        // Outras regras de acesso
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/paciente/**").hasRole("PACIENTE")
                         .requestMatchers(HttpMethod.PUT, "/paciente/**").hasRole("PACIENTE")
                         .requestMatchers(HttpMethod.DELETE, "/paciente/**").hasRole("PACIENTE")
                         .requestMatchers(HttpMethod.GET, "/adm/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/adm/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/auth/register/adm").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/auth/register/prosaude").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/profSaude/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/consulta/paciente/**").hasRole("PACIENTE")
                         .requestMatchers(HttpMethod.POST, "/consulta/**").hasRole("PACIENTE")
@@ -48,11 +50,13 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/profSaude/**").hasRole("PROFSAUDE")
                         .requestMatchers(HttpMethod.PUT, "/profSaude/**").hasRole("PROFSAUDE")
                         .requestMatchers(HttpMethod.GET, "/consulta/profissional/**").hasRole("PROFSAUDE")
+    
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
+    
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -77,5 +81,4 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

@@ -11,16 +11,14 @@ import com.application.SpringProntoClin.repository.PacienteRepository;
 import com.application.SpringProntoClin.repository.ProfissionalSaudeRepository;
 import com.application.SpringProntoClin.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-
+import org.springframework.http.MediaType;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -45,18 +43,23 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity login(@RequestBody RequestAuthentication authentication) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody RequestAuthentication authentication) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(authentication.email(), authentication.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         var token = tokenService.generateToken((Usuario) auth.getPrincipal());
 
-        return ResponseEntity.ok(new RequestLogin(token));
+        Map<String, String> response = new HashMap<>();
+        response.put("token", token);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/register/adm")
-    public ResponseEntity registerAdm(@RequestBody RequestAdministrador adm) {
-        if(this.usuarioRepository.findByEmail(adm.email()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<Map<String, String>> registerAdm(@RequestBody RequestAdministrador adm) {
+        if (this.usuarioRepository.findByEmail(adm.email()) != null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email já cadastrado"));
+        }
 
         String encryptPassword = new BCryptPasswordEncoder().encode(adm.senha());
 
@@ -64,11 +67,14 @@ public class AuthenticationController {
         administrador.setSenha(encryptPassword);
         this.admRepository.save(administrador);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
     }
+
     @PostMapping("/register/paciente")
-    public ResponseEntity registerPaciente(@RequestBody RequestPaciente paciente) {
-        if(this.usuarioRepository.findByEmail(paciente.email()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<Map<String, String>> registerPaciente(@RequestBody RequestPaciente paciente) {
+        if (this.usuarioRepository.findByEmail(paciente.email()) != null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email já cadastrado"));
+        }
 
         String encryptPassword = new BCryptPasswordEncoder().encode(paciente.senha());
 
@@ -76,11 +82,14 @@ public class AuthenticationController {
         newpaciente.setSenha(encryptPassword);
         pacienteRepository.save(newpaciente);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
     }
+
     @PostMapping("/register/prosaude")
-    public ResponseEntity registerProSaude(@RequestBody RequestProfissionalSaude prosaude) {
-        if(this.usuarioRepository.findByEmail(prosaude.email()) != null) return ResponseEntity.badRequest().build();
+    public ResponseEntity<Map<String, String>> registerProSaude(@RequestBody RequestProfissionalSaude prosaude) {
+        if (this.usuarioRepository.findByEmail(prosaude.email()) != null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Email já cadastrado"));
+        }
 
         String encryptPassword = new BCryptPasswordEncoder().encode(prosaude.senha());
 
@@ -88,6 +97,10 @@ public class AuthenticationController {
         newprosaude.setSenha(encryptPassword);
         profissionalSaudeRepository.save(newprosaude);
 
-        return ResponseEntity.ok().build();
+        System.out.println("Cadastro realizado com sucesso.");
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("message", "Cadastro realizado com sucesso"));
     }
 }

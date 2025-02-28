@@ -1,22 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Cadmed = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    nomeProfissionalSaude: '',
-    cpfProfissionalSaude: '',
-    especialidadeMedica: '',
-    telefoneProfissionalSaude: '',
-    CRM: '',
-    status: 'ATIVO',
-    email: '',
-    senha: '',
-    userrole: 'PROFSAUDE'
+    nomeProfissionalSaude: "",
+    cpfProfissionalSaude: "",
+    especialidadeMedica: "",
+    telefoneProfissionalSaude: "",
+    CRM: "",
+    status: "ATIVO",
+    email: "",
+    senha: "",
+    userrole: "PROFSAUDE",
+    dataNascimento: "",
   });
 
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +26,8 @@ const Cadmed = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
 
     try {
       const response = await fetch("http://localhost:8081/auth/register/prosaude", {
@@ -34,16 +38,26 @@ const Cadmed = () => {
         body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type");
 
-      if (response.ok) {
-        setMessage("Cadastro realizado com sucesso!");
-        setTimeout(() => navigate("/"), 2000); // Redireciona para login após 2 segundos
+      if (!response.ok) {
+        const errorMessage = contentType && contentType.includes("application/json") 
+          ? (await response.json()).message 
+          : "Erro ao realizar cadastro";
+        throw new Error(errorMessage);
+      }
+
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+        setMessage(data.message);
+        console.log("Cadastro realizado:", data);
       } else {
-        setMessage(data.message || "Erro ao cadastrar médico.");
+        setMessage("Cadastro realizado com sucesso.");
       }
     } catch (error) {
-      setMessage("Erro ao conectar com o servidor.");
+      setError(error.message);
+      console.error("Erro ao cadastrar profissional de saúde:", error);
     }
   };
 
@@ -51,16 +65,17 @@ const Cadmed = () => {
     <div className="container">
       <div className="login-section">
         <h2>Cadastro Médico</h2>
-        {message && <p>{message}</p>}
+        {message && <p style={{ color: "green" }}>{message}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
         <form onSubmit={handleSubmit}>
-          <input type="text" name="nomeProfissionalSaude" placeholder="Nome" className="input-field" onChange={handleChange} required />
-          <input type="text" name="cpfProfissionalSaude" placeholder="CPF" className="input-field" onChange={handleChange} required />
-          <input type="text" name="especialidadeMedica" placeholder="Especialidade" className="input-field" onChange={handleChange} required />
-          <input type="text" name="telefoneProfissionalSaude" placeholder="Telefone" className="input-field" onChange={handleChange} required />
-          <input type="text" name="CRM" placeholder="CRM" className="input-field" onChange={handleChange} required />
-          <input type="email" name="email" placeholder="Email" className="input-field" onChange={handleChange} required />
-          <input type="password" name="senha" placeholder="Senha" className="input-field" onChange={handleChange} required />
-          <br />
+          <input type="text" name="nomeProfissionalSaude" placeholder="Nome" onChange={handleChange} required />
+          <input type="text" name="cpfProfissionalSaude" placeholder="CPF" onChange={handleChange} required />
+          <input type="text" name="especialidadeMedica" placeholder="Especialidade" onChange={handleChange} required />
+          <input type="text" name="telefoneProfissionalSaude" placeholder="Telefone" onChange={handleChange} required />
+          <input type="text" name="CRM" placeholder="CRM" onChange={handleChange} required />
+          <input type="date" name="dataNascimento" onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+          <input type="password" name="senha" placeholder="Senha" onChange={handleChange} required />
           <button type="submit" className="btn">Criar</button>
         </form>
       </div>
