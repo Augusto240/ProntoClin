@@ -11,4 +11,6 @@ public interface ProfissionalSaudeRepository extends JpaRepository<ProfissionalS
 
     Optional<ProfissionalSaude> findById(Long idprofissionalSaude);
 
+    Object findByEmail(String email);
+
 }

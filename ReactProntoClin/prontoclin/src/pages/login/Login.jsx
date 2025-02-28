@@ -29,17 +29,15 @@ const Login = () => {
         
         // Armazena o token e tipo de usuário no localStorage
         localStorage.setItem("token", data.token);
-      
-        // 🔹 Como o backend não retorna o userType, precisa ser ajustado:
-        const userType = "MÉDICO"; // ⚠️ Troque isso para uma lógica real
-        
-        localStorage.setItem("userType", userType);
+        localStorage.setItem("userType", data.userType);
       
         // Redireciona baseado no tipo de usuário
-        if (userType === "MÉDICO") {
+        if (data.userType === "MÉDICO") {
           navigate("/tela-medico");
-        } else if (userType === "PACIENTE") {
+        } else if (data.userType === "PACIENTE") {
           navigate("/tela-paciente");
+        } else if (data.userType === "ADMINISTRADOR") {
+          navigate("/tela-administrador");
         } else {
           setError("Tipo de usuário desconhecido.");
         }

@@ -47,12 +47,29 @@ public class AuthenticationController {
         var usernamePassword = new UsernamePasswordAuthenticationToken(authentication.email(), authentication.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        var token = tokenService.generateToken((Usuario) auth.getPrincipal());
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        String token = tokenService.generateToken(usuario);
 
+        // Determinar o tipo de usuário
+        String userType = determinarTipoUsuario(usuario.getEmail());
+
+        // Retornar o token e o tipo de usuário
         Map<String, String> response = new HashMap<>();
         response.put("token", token);
+        response.put("userType", userType);
 
         return ResponseEntity.ok(response);
+    }
+
+    private String determinarTipoUsuario(String email) {
+        if (admRepository.findByEmail(email) != null) {
+            return "ADMINISTRADOR";
+        } else if (pacienteRepository.findByEmail(email) != null) {
+            return "PACIENTE";
+        } else if (profissionalSaudeRepository.findByEmail(email) != null) {
+            return "MÉDICO"; // Ou outro nome se precisar
+        }
+        return "DESCONHECIDO";
     }
 
     @PostMapping("/register/adm")
@@ -96,8 +113,6 @@ public class AuthenticationController {
         ProfissionalSaude newprosaude = new ProfissionalSaude(prosaude);
         newprosaude.setSenha(encryptPassword);
         profissionalSaudeRepository.save(newprosaude);
-
-        System.out.println("Cadastro realizado com sucesso.");
 
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)
