@@ -1,0 +1,23 @@
+# Etapa 1: Construir a aplicação React (Frontend)
+FROM node:18-alpine AS react-build
+
+WORKDIR /app
+
+# Copiar o package.json e o package-lock.json
+COPY ReactProntoClin/prontoclin/package*.json /app/
+
+# Instalar dependências do React
+RUN npm install
+RUN npm install vite --save-dev
+
+# Copiar o código fonte da aplicação React
+COPY ReactProntoClin/prontoclin /app/
+
+# Construir a aplicação React para produção
+RUN npm run build
+
+# Expor a porta 80 (do frontend)
+EXPOSE 3000
+
+
+CMD ["npm","run" ,"start"]

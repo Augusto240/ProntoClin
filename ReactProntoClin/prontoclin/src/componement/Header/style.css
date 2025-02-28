@@ -1,0 +1,35 @@
+.header {
+    background-color: #3b82f6;
+    width: 100%; 
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    box-sizing: border-box; 
+    position: fixed;
+    top: 0;
+    left: 0; 
+    z-index: 1000; 
+}
+
+.header h1 {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0; 
+}
+
+.profile-icon {
+    padding: 8px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-icon svg {
+    width: 24px;
+    height: 24px;
+    color: black;
+}
