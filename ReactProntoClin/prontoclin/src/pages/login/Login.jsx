@@ -1,45 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import "./Login.css";
-import { useState } from 'react';
 
 const Login = () => {
   const navigate = useNavigate();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
     try {
-      const Credenciais = { email, senha: password };
-      console.log(Credenciais);
-      
-      try {
-        const response = await fetch("http://localhost:8081/auth/login", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(Credenciais), // Aqui estava vazio antes
-        });
-  
-        const data = await response.json();
-        console.log(data);
-  
-        if (data.success) {  // Aqui estava 'response.success', mas deveria ser 'data.success'
-          console.log('Login bem-sucedido!', data);
-          navigate('/tela-paciente'); // Redireciona após login bem-sucedido
-        } else {
-          setError('Credenciais inválidas');
-        }
+      const credenciais = { email, senha: password };
+
+      const response = await fetch("http://localhost:8081/auth/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credenciais),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.token) {
+        console.log('Login bem-sucedido!', data);
         
-      } catch (error) {
-        console.error('Erro na requisição', error);
-        throw new Error('Erro ao autenticar');
-      }
+        // Armazena o token e tipo de usuário no localStorage
+        localStorage.setItem("token", data.token);
+      
+        // 🔹 Como o backend não retorna o userType, precisa ser ajustado:
+        const userType = "MÉDICO"; // ⚠️ Troque isso para uma lógica real
+        
+        localStorage.setItem("userType", userType);
+      
+        // Redireciona baseado no tipo de usuário
+        if (userType === "MÉDICO") {
+          navigate("/tela-medico");
+        } else if (userType === "PACIENTE") {
+          navigate("/tela-paciente");
+        } else {
+          setError("Tipo de usuário desconhecido.");
+        }
+      } else {
+        setError('Credenciais inválidas');
+      }      
     } catch (err) {
       setError('Erro ao autenticar. Tente novamente.');
       console.error(err);
@@ -50,9 +56,10 @@ const Login = () => {
     <div className="container">
       <div className="login-section">
         <h2>Entrar na conta</h2>
+        {error && <p className="error">{error}</p>}
         <form onSubmit={handleSubmit}>
-          <input type="text" placeholder="email" className="input-field" value={email} onChange={(e) => setEmail(e.target.value)}/>
-          <input type="password" placeholder="**********" className="input-field" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <input type="text" placeholder="email" className="input-field" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder="**********" className="input-field" value={password} onChange={(e) => setPassword(e.target.value)} required />
           <br />
           <button type="submit" className="btn">Entrar</button>
         </form>
