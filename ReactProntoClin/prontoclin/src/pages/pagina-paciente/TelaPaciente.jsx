@@ -1,22 +1,25 @@
-import React, { useState } from "react";
-import Header from '../../componement/Header/index';
-import Card from '../../componement/Card/Card';
-import Modal from '../../componement/Modal/Modal';
+import { useState } from "react";
+
+import Header from "../../componement/Header/index";
+import Card from "../../componement/Card/Card";
+import Modal from "../../componement/Modal/Modal";
+
 import "./TelaPaciente.css";
+
 const TelaPaciente = () => {
   const [consultas, setConsultas] = useState([
     {
       medico: "Dr. Samuel Marques",
       horario: "07hrs",
       sala: "lab 6",
-      orientacoes: "lorem isto oloem"
+      orientacoes: "lorem isto oloem",
     },
     {
       medico: "Dr. Ana Costa",
       horario: "09hrs",
       sala: "lab 8",
-      orientacoes: "exemplo orientação"
-    }
+      orientacoes: "exemplo orientação",
+    },
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,14 +27,14 @@ const TelaPaciente = () => {
     medico: "",
     horario: "",
     sala: "",
-    orientacoes: ""
+    orientacoes: "",
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNovaConsulta({
       ...novaConsulta,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -56,7 +59,7 @@ const TelaPaciente = () => {
           <button className="new-consult" onClick={() => setIsModalOpen(true)}>
             Nova Consulta
           </button>
-          <button className="filter">Filtrar</button>
+          <button className="filter"></button>
         </div>
         <hr />
         <div className="cards-container">
