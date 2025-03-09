@@ -78,6 +78,7 @@ const TelaPaciente = () => {
 
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
         <form onSubmit={handleSubmit}>
+          <h2>Solicitar nova consulta</h2>
           <div className="form-group">
             <label>Médico:</label>
             <input
