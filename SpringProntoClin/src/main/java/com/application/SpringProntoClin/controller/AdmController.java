@@ -39,7 +39,6 @@ public class AdmController {
         administrador.setEmail(adm.getEmail());
         String encryptPassword = new BCryptPasswordEncoder().encode(adm.getSenha());
         administrador.setSenha(encryptPassword);
-        administrador.setSenha(adm.getSenha());
 
         return admRepository.save(administrador);
 

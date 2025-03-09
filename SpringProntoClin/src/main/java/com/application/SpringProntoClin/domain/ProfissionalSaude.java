@@ -12,7 +12,8 @@ import lombok.*;
 @Table(name = "profissionalsaude")
 @PrimaryKeyJoinColumn(name="iduser")
 public class ProfissionalSaude extends Usuario {
-    
+
+    @Column(unique = true)
     private String nomeprofissionalsaude ;
     
     @Column(unique = true)

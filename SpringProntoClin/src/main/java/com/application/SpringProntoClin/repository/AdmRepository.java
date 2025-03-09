@@ -6,6 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AdmRepository extends JpaRepository<Administrador, Long>{
-
-    Object findByEmail(String email);
 }

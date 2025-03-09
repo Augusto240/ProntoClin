@@ -5,20 +5,19 @@ import com.application.SpringProntoClin.domain.Administrador;
 import com.application.SpringProntoClin.domain.Paciente;
 import com.application.SpringProntoClin.domain.ProfissionalSaude;
 import com.application.SpringProntoClin.domain.Usuario;
+import com.application.SpringProntoClin.enums.UsuarioRole;
 import com.application.SpringProntoClin.infra.TokenService;
 import com.application.SpringProntoClin.repository.AdmRepository;
 import com.application.SpringProntoClin.repository.PacienteRepository;
 import com.application.SpringProntoClin.repository.ProfissionalSaudeRepository;
 import com.application.SpringProntoClin.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.MediaType;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,40 +42,18 @@ public class AuthenticationController {
     private TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody RequestAuthentication authentication) {
+    public ResponseEntity login(@RequestBody RequestAuthentication authentication) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(authentication.email(), authentication.senha());
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
+        var token = tokenService.generateToken((Usuario) auth.getPrincipal());
         Usuario usuario = (Usuario) auth.getPrincipal();
-        String token = tokenService.generateToken(usuario);
-
-        // Determinar o tipo de usuário
-        String userType = determinarTipoUsuario(usuario.getEmail());
-
-        // Retornar o token e o tipo de usuário
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
-        response.put("userType", userType);
-
-        return ResponseEntity.ok(response);
-    }
-
-    private String determinarTipoUsuario(String email) {
-        if (admRepository.findByEmail(email) != null) {
-            return "ADMINISTRADOR";
-        } else if (pacienteRepository.findByEmail(email) != null) {
-            return "PACIENTE";
-        } else if (profissionalSaudeRepository.findByEmail(email) != null) {
-            return "MÉDICO"; // Ou outro nome se precisar
-        }
-        return "DESCONHECIDO";
+        return ResponseEntity.ok(new RequestLogin(token, usuario.getUserrole()));
     }
 
     @PostMapping("/register/adm")
-    public ResponseEntity<Map<String, String>> registerAdm(@RequestBody RequestAdministrador adm) {
-        if (this.usuarioRepository.findByEmail(adm.email()) != null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email já cadastrado"));
-        }
+    public ResponseEntity registerAdm(@RequestBody RequestAdministrador adm) {
+        if(this.usuarioRepository.findByEmail(adm.email()) != null) return ResponseEntity.badRequest().build();
 
         String encryptPassword = new BCryptPasswordEncoder().encode(adm.senha());
 
@@ -84,14 +61,11 @@ public class AuthenticationController {
         administrador.setSenha(encryptPassword);
         this.admRepository.save(administrador);
 
-        return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
+        return ResponseEntity.ok().build();
     }
-
     @PostMapping("/register/paciente")
-    public ResponseEntity<Map<String, String>> registerPaciente(@RequestBody RequestPaciente paciente) {
-        if (this.usuarioRepository.findByEmail(paciente.email()) != null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email já cadastrado"));
-        }
+    public ResponseEntity registerPaciente(@RequestBody RequestPaciente paciente) {
+        if(this.usuarioRepository.findByEmail(paciente.email()) != null) return ResponseEntity.badRequest().build();
 
         String encryptPassword = new BCryptPasswordEncoder().encode(paciente.senha());
 
@@ -99,14 +73,11 @@ public class AuthenticationController {
         newpaciente.setSenha(encryptPassword);
         pacienteRepository.save(newpaciente);
 
-        return ResponseEntity.ok(Map.of("message", "Cadastro realizado com sucesso"));
+        return ResponseEntity.ok().build();
     }
-
     @PostMapping("/register/prosaude")
-    public ResponseEntity<Map<String, String>> registerProSaude(@RequestBody RequestProfissionalSaude prosaude) {
-        if (this.usuarioRepository.findByEmail(prosaude.email()) != null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Email já cadastrado"));
-        }
+    public ResponseEntity registerProSaude(@RequestBody RequestProfissionalSaude prosaude) {
+        if(this.usuarioRepository.findByEmail(prosaude.email()) != null) return ResponseEntity.badRequest().build();
 
         String encryptPassword = new BCryptPasswordEncoder().encode(prosaude.senha());
 
@@ -114,8 +85,6 @@ public class AuthenticationController {
         newprosaude.setSenha(encryptPassword);
         profissionalSaudeRepository.save(newprosaude);
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(Map.of("message", "Cadastro realizado com sucesso"));
+        return ResponseEntity.ok().build();
     }
 }

@@ -12,6 +12,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/paciente")
 public class PacienteController {
@@ -33,6 +35,7 @@ public class PacienteController {
         Object principal = authentication.getPrincipal();
         Paciente userpaciente = (Paciente) principal;
         Paciente patient = pacienteRepository.findById(userpaciente.getIduser()).orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
+        patient.setNomepaciente(paciente.getNomepaciente());
         patient.setEmail(paciente.getEmail());
         String encryptPassword = new BCryptPasswordEncoder().encode(paciente.getSenha());
         patient.setSenha(encryptPassword);
@@ -40,5 +43,14 @@ public class PacienteController {
         patient.setTelefonepaciente(paciente.getTelefonepaciente());
 
         return pacienteRepository.save(patient);
+    }
+    
+    @GetMapping("/pacientes")
+    public ResponseEntity<?> getPacientes() {
+        List<Paciente> pacientes = pacienteRepository.findAll();
+        if (pacientes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Nenhum paciente encontrado");
+        }
+        return ResponseEntity.ok(pacientes);
     }
 }
