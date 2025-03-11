@@ -56,12 +56,15 @@ const Cadmed = () => {
         data = await response.json();
         setMessage(data.message);
         console.log("Cadastro realizado:", data);
+        setTimeout(() => setMessage(""), 3000); // Limpar a mensagem após 3 segundos
       } else {
         setMessage("Cadastro realizado com sucesso.");
+        setTimeout(() => setMessage(""), 3000); // Limpar a mensagem após 3 segundos
       }
     } catch (error) {
       setError(error.message);
       console.error("Erro ao cadastrar profissional de saúde:", error);
+      setTimeout(() => setError(""), 3000); // Limpar a mensagem após 3 segundos
     }
   };
 

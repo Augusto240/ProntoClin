@@ -30,7 +30,7 @@ services:
 
   springboot-app:
     build:
-      context: .  
+      context: ./  
       dockerfile: ./SpringProntoClin/dockerfile
     container_name: springprontoclin
     ports:

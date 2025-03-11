@@ -17,6 +17,7 @@ const Cadpac = () => {
   });
 
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -24,6 +25,8 @@ const Cadpac = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
+    setError("");
 
     try {
       const response = await fetch(
@@ -42,11 +45,14 @@ const Cadpac = () => {
       if (response.ok) {
         setMessage("Cadastro realizado com sucesso!");
         setTimeout(() => navigate("/"), 2000); // Redireciona para login após 2 segundos
+        setTimeout(() => setMessage(""), 3000); // Limpar a mensagem após 3 segundos
       } else {
-        setMessage(data.message || "Erro ao cadastrar paciente.");
+        setError(data.message || "Erro ao cadastrar paciente.");
+        setTimeout(() => setError(""), 3000); // Limpar a mensagem após 3 segundos
       }
     } catch (error) {
-      setMessage("Erro ao conectar com o servidor.");
+      setError("Erro ao conectar com o servidor.");
+      setTimeout(() => setError(""), 3000); // Limpar a mensagem após 3 segundos
     }
   };
 
@@ -54,7 +60,8 @@ const Cadpac = () => {
     <div className="container">
       <div className="login-section">
         <h2>Cadastro Paciente</h2>
-        {message && <p>{message}</p>}
+        {message && <p style={{ color: "green" }}>{message}</p>}
+        {error && <p style={{ color: "red" }}>{error}</p>}
         <form onSubmit={handleSubmit}>
           <input
             type="text"

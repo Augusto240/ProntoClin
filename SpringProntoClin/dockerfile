@@ -5,8 +5,8 @@ FROM maven:3.8-openjdk-17-slim AS build
 WORKDIR /app
 
 # Copie o arquivo pom.xml e o diretório src para dentro do contêiner
-COPY ../SpringProntoClin/pom.xml /app/
-COPY ../SpringProntoClin/src /app/src/
+COPY ./SpringProntoClin/pom.xml /app/
+COPY ./SpringProntoClin/src /app/src/
 
 # Baixar as dependências e compilar o projeto
 RUN mvn clean package -DskipTests
