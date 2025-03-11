@@ -17,7 +17,7 @@ const Header = () => {
 
   return (
     <div className="header">
-      <h1>ProntoCli</h1>
+      <h1>ProntoClin</h1>
       <button onClick={handleClick}>Sair</button>
     </div>
   );
