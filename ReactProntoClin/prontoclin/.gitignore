@@ -38,3 +38,6 @@ Thumbs.db
 *.pem
 *.log
 *.tgz
+
+#package-lock.json
+package-lock.json
